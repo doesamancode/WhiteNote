@@ -1,0 +1,33 @@
+# 🔐 Secrets & credentials
+config.txt
+wifi_cred.txt
+.env
+
+# 🧪 Local / test files
+test.jpg
+*.jpg
+*.png
+*.jpeg
+
+# 📝 Random docs / exports
+*.pdf
+
+# ⚙️ Python cache & env
+__pycache__/
+*.pyc
+venv/
+.env/
+
+# 🖥️ OS files
+.DS_Store
+Thumbs.db
+
+# 🔧 IDE files
+.vscode/
+.idea/
+
+# 🚫 Executables / binaries
+*.exe
+
+# 📦 Logs
+*.log
