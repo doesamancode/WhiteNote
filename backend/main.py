@@ -1,4 +1,5 @@
 import asyncio
+import os
 from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
 import io
@@ -6,30 +7,26 @@ from PIL import Image
 import google.generativeai as genai
 from telegram import Bot
 
-# ───── CONFIG ─────
-def load_config():
-    config = {}
-    with open("config.txt") as f:
-        for line in f:
-            key, value = line.strip().split("=")
-            config[key] = value
-    return config
+# ───── CONFIG (FROM ENV VARIABLES) ─────
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
+CHAT_ID = os.environ.get("CHAT_ID")
 
-cfg = load_config()
+if not GEMINI_API_KEY or not TELEGRAM_TOKEN or not CHAT_ID:
+    raise Exception("Missing environment variables!")
 
+# ───── INIT ─────
 app = FastAPI()
 
-genai.configure(api_key=cfg["GEMINI_API_KEY"])
+genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
 
-bot = Bot(token=cfg["TELEGRAM_TOKEN"])
-CHAT_ID = cfg["CHAT_ID"]
+bot = Bot(token=TELEGRAM_TOKEN)
 
 # ───── ROOT ─────
 @app.get("/")
 def home():
     return {"status": "backend running"}
-
 
 # ───── BACKGROUND PROCESSOR ─────
 async def process_image(img_bytes):
@@ -107,7 +104,6 @@ Keep everything concise and easy to read on phone.
     except Exception as e:
         print("PROCESS ERROR:", e)
 
-
 # ───── ESP ENDPOINT ─────
 @app.post("/esp/")
 async def esp_upload(request: Request):
@@ -120,10 +116,9 @@ async def esp_upload(request: Request):
         if len(img_bytes) < 500:
             return PlainTextResponse("too small", status_code=400)
 
-        # 🔥 KEY CHANGE: run processing in background
+        # Run in background
         asyncio.create_task(process_image(img_bytes))
 
-        # 🔥 RETURN IMMEDIATELY (no waiting for Gemini)
         return PlainTextResponse("OK", status_code=200)
 
     except Exception as e:
