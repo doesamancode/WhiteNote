@@ -19,7 +19,7 @@ if not GEMINI_API_KEY or not TELEGRAM_TOKEN or not CHAT_ID:
 app = FastAPI()
 
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
+model = genai.GenerativeModel("gemini-3.1-flash-lite")
 
 bot = Bot(token=TELEGRAM_TOKEN)
 
